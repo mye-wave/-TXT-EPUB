@@ -1,15 +1,29 @@
+# Python caches and local environments
 __pycache__/
 *.py[cod]
-*$py.class
+.venv/
+.venv-build/
 
-test_output/
-output/
-dist/
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+
+# PyInstaller output
 build/
+dist/
+*.spec
 
-*.epub
+# Generated conversion output
+test_output/
+txt转epub_*/
+tmpe*/
 conversion_report.txt
 conversion_report.json
+*.epub
 
-.DS_Store
-Thumbs.db
+# Local diagnostics
+gui_screenshot.png
+
+# Keep the ready-to-use Windows build in the repository root.
+*.exe
+!TxtToEpubConverter.exe

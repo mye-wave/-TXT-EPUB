@@ -24,7 +24,7 @@ from statistics import median
 
 
 TOOL_VERSION = "1.0.0"
-DEFAULT_OUTPUT_BASE = Path(r"E:\不知道")
+DEFAULT_OUTPUT_BASE = Path(r"E:\txt-epub")
 DEFAULT_LANGUAGE = "zh-CN"
 MAX_TITLE_LENGTH = 90
 DEFAULT_MAX_CHARS_PER_XHTML = 240_000
@@ -1040,7 +1040,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--output-dir",
         type=Path,
         default=None,
-        help=r"输出文件夹。默认会新建到 E:\不知道\txt转epub_时间戳。",
+        help=r"输出文件夹。默认会新建到 E:\txt-epub\txt转epub_时间戳。",
     )
     parser.add_argument("--recursive", action="store_true", help="输入为文件夹时递归查找 TXT。")
     parser.add_argument("--overwrite", action="store_true", help="允许覆盖同名 EPUB。")

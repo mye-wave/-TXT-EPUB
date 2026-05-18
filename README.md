@@ -36,6 +36,77 @@ python txt_to_epub.py "D:\小说\某本小说.txt" --preview
 python txt_to_epub.py "D:\小说" --recursive --output-dir "E:\不知道\我的epub"
 ```
 
+## 可视化 GUI / Windows EXE
+
+已经提供可直接双击运行的 Windows 版本：
+
+```text
+TxtToEpubConverter.exe
+```
+
+桌面界面采用 `pywebview + React + Vite + TailwindCSS`，转换逻辑仍然复用 Python 后端 `txt_to_epub.py`。
+
+如果想在应用内选择文件和控制参数，可以直接运行：
+
+```powershell
+python -m pip install -r requirements-gui.txt
+cd frontend
+npm install
+npm run build
+cd ..
+python txt_to_epub_gui.py
+```
+
+GUI 支持：
+
+- 添加单个 TXT 或整个文件夹
+- 现代 Web 风格桌面界面
+- 设置输出目录、编码、作者、书名、封面、字体
+- 开关递归转换、覆盖同名 EPUB、保留 TXT 自带目录、弱标题识别
+- 填写额外章节正则、语言、出版者、简介
+- 先预览目录，再正式转换
+- 查看运行日志和打开输出目录
+
+## 打包成 Windows EXE
+
+项目提供了 `build_exe.ps1`。如果已经安装 GUI 和打包依赖：
+
+```powershell
+.\build_exe.ps1
+```
+
+如果还没有安装依赖，可以让脚本先安装再打包：
+
+```powershell
+.\build_exe.ps1 -InstallDeps
+```
+
+脚本默认会在项目目录创建 `.venv-build` 作为专用打包环境，避免和你现有 Python/Anaconda 包冲突。依赖列表在 `requirements-gui.txt`，目前使用开源的 `pywebview` 和 `pyinstaller`；前端依赖在 `frontend/package.json`。如果你确实想使用当前 Python 环境，可以加 `-UseCurrentPython`。
+
+默认会生成单文件 EXE：
+
+```text
+dist\TxtToEpubConverter.exe
+```
+
+单文件模式还会同步复制一份到项目根目录：
+
+```text
+TxtToEpubConverter.exe
+```
+
+如果更希望生成传统文件夹形式，运行：
+
+```powershell
+.\build_exe.ps1 -OneDir
+```
+
+文件夹模式的入口在：
+
+```text
+dist\TxtToEpubConverter\TxtToEpubConverter.exe
+```
+
 ## 生僻字与编码
 
 脚本默认会自动尝试：
