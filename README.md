@@ -1,16 +1,52 @@
 # TXT 长篇小说转 EPUB 工具
 
-这个目录里的 `txt_to_epub.py` 是一个纯 Python 标准库转换器，用来把中文 TXT 网络小说转换成带目录的 EPUB。
+这是一个面向中文长篇 TXT 小说的 EPUB 转换工具。它可以把普通 `.txt` 文件整理成带目录、元数据、封面和阅读器兼容结构的 `.epub` 文件，适合用来处理网络小说、长篇文稿、旧编码 TXT 和批量书库整理。
+
+项目提供两种使用方式：
+
+- **Windows 可视化应用**：直接双击 `TxtToEpubConverter.exe`，在界面里选择文件、调整参数并转换。
+- **Python 命令行工具**：使用 `txt_to_epub.py` 批量转换，适合脚本化和自动化处理。
+
+转换核心使用 Python 标准库实现，不依赖 Calibre、ebooklib 或 chardet。桌面界面采用 `pywebview + React + Vite + TailwindCSS`，前端负责现代化交互，后端继续复用稳定的 Python 转换逻辑。
+
+## 功能亮点
+
+- 自动识别常见中文 TXT 编码，包括 `utf-8`、`gb18030`、`big5`、`utf-16`
+- 支持单文件转换，也支持文件夹批量递归转换
+- 自动识别章节标题并生成 EPUB 目录
+- 支持额外章节正则，适配特殊小说格式
+- 支持封面图片、作者、书名、语言、出版者、简介等元数据
+- 支持嵌入 CJK 字体，改善生僻字在阅读器中的显示
+- 支持预览章节目录，不生成 EPUB
+- 转换后生成 `conversion_report.txt` 和 `conversion_report.json`
+- 提供现代 Web 风格 Windows GUI 和可复现的打包脚本
+
+## 快速开始
+
+如果你只想直接使用 Windows 桌面版，下载或打开仓库根目录里的：
+
+```text
+TxtToEpubConverter.exe
+```
+
+打开后可以在界面中完成这些操作：
+
+- 添加 TXT 文件或包含 TXT 的文件夹
+- 设置输出目录、编码、书名、作者、封面和字体
+- 开启递归转换、覆盖同名文件、保留 TXT 自带目录、弱标题识别
+- 填写额外章节正则和 EPUB 元数据
+- 先预览目录，再正式转换
+- 查看运行日志和打开输出目录
 
 默认输出目录会新建在：
 
 ```text
-E:\不知道\txt转epub_时间戳
+E:\txt-epub\txt转epub_时间戳
 ```
 
-如果你的电脑上没有这个文件夹，脚本会自动创建；如果 E 盘不存在或权限不足，可以用 `--output-dir` 改到其他位置。
+如果你的电脑没有这个目录，程序会自动创建；也可以在 GUI 或命令行中手动指定输出目录。
 
-## 最常用命令
+## 命令行用法
 
 转换单个 TXT：
 
@@ -33,100 +69,24 @@ python txt_to_epub.py "D:\小说\某本小说.txt" --preview
 指定输出目录：
 
 ```powershell
-python txt_to_epub.py "D:\小说" --recursive --output-dir "E:\不知道\我的epub"
+python txt_to_epub.py "D:\小说" --recursive --output-dir "E:\txt-epub\我的epub"
 ```
 
-## 可视化 GUI / Windows EXE
-
-已经提供可直接双击运行的 Windows 版本：
-
-```text
-TxtToEpubConverter.exe
-```
-
-桌面界面采用 `pywebview + React + Vite + TailwindCSS`，转换逻辑仍然复用 Python 后端 `txt_to_epub.py`。
-
-如果想在应用内选择文件和控制参数，可以直接运行：
-
-```powershell
-python -m pip install -r requirements-gui.txt
-cd frontend
-npm install
-npm run build
-cd ..
-python txt_to_epub_gui.py
-```
-
-GUI 支持：
-
-- 添加单个 TXT 或整个文件夹
-- 现代 Web 风格桌面界面
-- 设置输出目录、编码、作者、书名、封面、字体
-- 开关递归转换、覆盖同名 EPUB、保留 TXT 自带目录、弱标题识别
-- 填写额外章节正则、语言、出版者、简介
-- 先预览目录，再正式转换
-- 查看运行日志和打开输出目录
-
-## 打包成 Windows EXE
-
-项目提供了 `build_exe.ps1`。如果已经安装 GUI 和打包依赖：
-
-```powershell
-.\build_exe.ps1
-```
-
-如果还没有安装依赖，可以让脚本先安装再打包：
-
-```powershell
-.\build_exe.ps1 -InstallDeps
-```
-
-脚本默认会在项目目录创建 `.venv-build` 作为专用打包环境，避免和你现有 Python/Anaconda 包冲突。依赖列表在 `requirements-gui.txt`，目前使用开源的 `pywebview` 和 `pyinstaller`；前端依赖在 `frontend/package.json`。如果你确实想使用当前 Python 环境，可以加 `-UseCurrentPython`。
-
-默认会生成单文件 EXE：
-
-```text
-dist\TxtToEpubConverter.exe
-```
-
-单文件模式还会同步复制一份到项目根目录：
-
-```text
-TxtToEpubConverter.exe
-```
-
-如果更希望生成传统文件夹形式，运行：
-
-```powershell
-.\build_exe.ps1 -OneDir
-```
-
-文件夹模式的入口在：
-
-```text
-dist\TxtToEpubConverter\TxtToEpubConverter.exe
-```
-
-## 生僻字与编码
-
-脚本默认会自动尝试：
-
-- `utf-8`
-- `gb18030`
-- `big5`
-- `utf-16`
-
-其中 `gb18030` 对简体中文和很多生僻字更友好。脚本不会用“忽略错误”的方式吞掉无法识别的字；如果发现编码不干净，会写进 `conversion_report.txt`。
-
-如果你确定 TXT 是某种编码，可以强制指定：
+强制指定编码：
 
 ```powershell
 python txt_to_epub.py "D:\小说\古早小说.txt" --encoding gb18030
 ```
 
-## 章节目录识别
+添加封面和作者：
 
-默认支持常见标题：
+```powershell
+python txt_to_epub.py "D:\小说\某本小说.txt" --author "作者名" --cover-image "D:\封面\cover.jpg"
+```
+
+## 章节识别
+
+默认支持常见中文小说章节格式，例如：
 
 - `第1章 标题`
 - `第一章 标题`
@@ -139,7 +99,7 @@ python txt_to_epub.py "D:\小说\古早小说.txt" --encoding gb18030
 - `番外`
 - `大结局`
 
-如果你的 TXT 用的是特殊格式，可以额外传入章节正则：
+如果 TXT 使用特殊格式，可以额外传入章节正则：
 
 ```powershell
 python txt_to_epub.py "D:\小说\特殊格式.txt" --chapter-regex "^【第.+?章】.*$"
@@ -153,7 +113,9 @@ python txt_to_epub.py "D:\小说\某本小说.txt" --allow-weak-numbered-title
 
 这个选项有正文误判风险，所以默认关闭。
 
-## 嵌入字体
+## 生僻字与字体
+
+脚本默认会自动尝试多种编码，并尽量避免用“忽略错误”的方式吞掉无法识别的字。如果发现编码不干净，相关警告会写入转换报告。
 
 如果阅读器显示生僻字为方框，可以嵌入 CJK 字体：
 
@@ -161,7 +123,7 @@ python txt_to_epub.py "D:\小说\某本小说.txt" --allow-weak-numbered-title
 python txt_to_epub.py "D:\小说\某本小说.txt" --font "D:\字体\NotoSerifCJKsc-Regular.otf"
 ```
 
-建议字体：
+推荐字体：
 
 - Noto Serif CJK SC
 - Noto Sans CJK SC
@@ -170,13 +132,71 @@ python txt_to_epub.py "D:\小说\某本小说.txt" --font "D:\字体\NotoSerifCJ
 
 注意：嵌入完整中文字体会显著增大 EPUB 文件体积。
 
-## 封面和元数据
+## 从源码运行 GUI
+
+GUI 由 Python 后端和 React 前端组成。首次运行需要安装依赖并构建前端：
 
 ```powershell
-python txt_to_epub.py "D:\小说\某本小说.txt" --author "作者名" --cover-image "D:\封面\cover.jpg"
+python -m pip install -r requirements-gui.txt
+cd frontend
+npm install
+npm run build
+cd ..
+python txt_to_epub_gui.py
 ```
 
-批量转换时不建议使用 `--title`，因为它会让多本书使用同一个书名。
+## 打包 Windows EXE
+
+项目提供 `build_exe.ps1`，会自动创建 `.venv-build` 专用环境，安装 GUI/打包依赖，构建前端，并使用 PyInstaller 生成 Windows 可执行文件。
+
+首次打包：
+
+```powershell
+.\build_exe.ps1 -InstallDeps
+```
+
+之后重新打包：
+
+```powershell
+.\build_exe.ps1
+```
+
+默认生成单文件：
+
+```text
+dist\TxtToEpubConverter.exe
+```
+
+脚本还会同步复制一份到项目根目录：
+
+```text
+TxtToEpubConverter.exe
+```
+
+如果更希望生成传统文件夹形式：
+
+```powershell
+.\build_exe.ps1 -OneDir
+```
+
+文件夹模式入口：
+
+```text
+dist\TxtToEpubConverter\TxtToEpubConverter.exe
+```
+
+## 项目结构
+
+```text
+.
+├─ txt_to_epub.py          # TXT 到 EPUB 的核心转换逻辑
+├─ txt_to_epub_gui.py      # pywebview 桌面壳和 Python API
+├─ frontend/               # React + Vite + Tailwind 前端
+├─ samples/                # 示例 TXT
+├─ build_exe.ps1           # Windows 打包脚本
+├─ requirements-gui.txt    # Python GUI/打包依赖
+└─ TxtToEpubConverter.exe  # 已构建的 Windows 单文件应用
+```
 
 ## 输出报告
 
@@ -187,11 +207,15 @@ conversion_report.txt
 conversion_report.json
 ```
 
-里面会记录：
+报告会记录：
 
-- 每本书的输出路径
+- 每本书的源文件和输出路径
 - 检测到的编码
 - 章节数量
-- 是否跳过了 TXT 自带目录
+- 是否跳过 TXT 自带目录
 - 编码或 EPUB 校验警告
 - 失败原因
+
+## 适合的使用场景
+
+这个工具适合需要经常整理中文 TXT 小说的人：例如把旧网站下载的长篇 TXT 转成 EPUB、给阅读器制作带目录的书籍、批量处理多个小说文件夹，或者在保留 Python 可维护性的同时获得一个比较现代的桌面应用界面。
